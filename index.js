@@ -17,7 +17,8 @@ let req = (url, type) => {
 let gl
 let shaderProgram
 
-let models = [
+const shading = 0 // 0 FLAT 1 GOURAUD 2 PHONG
+const models = [
 	{ src: 'model/Teapot.json' },
 	// { src: 'model/Car_road.json' },
 	// { src: 'model/Church_s.json' },
@@ -74,15 +75,16 @@ async function initShaders() {
 
 	gl.useProgram(shaderProgram)
 
-	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition')
+	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'srcPos')
 	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute)
-	shaderProgram.vertexFrontColorAttribute = gl.getAttribLocation(shaderProgram, 'aFrontColor')
-	gl.enableVertexAttribArray(shaderProgram.vertexFrontColorAttribute)
-	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, 'aVertexNormal');
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, 'srcNorm');
 	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+	shaderProgram.vertexFrontColorAttribute = gl.getAttribLocation(shaderProgram, 'fColor')
+	gl.enableVertexAttribArray(shaderProgram.vertexFrontColorAttribute)
 
-	shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, 'uPMatrix')
-	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix')
+	shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, 'Pmat')
+	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'Mmat')
+	shaderProgram.shading = gl.getUniformLocation(shaderProgram, 'shading')
 }
 
 // load
@@ -193,6 +195,7 @@ function drawModel(model) {
 		model.data.center.z
 	])
 
+	gl.uniformMatrix4fv(shaderProgram.shading, false, [shading])
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix)
 
@@ -205,18 +208,18 @@ function drawModel(model) {
 	)
 
 	// Setup teapot front color data
-	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer.vertexFrontColor)
-	gl.vertexAttribPointer(
-		shaderProgram.vertexFrontColorAttribute, 
-		model.buffer.vertexFrontColor.itemSize, 
-		gl.FLOAT, false, 0, 0
-	)
-
-	// Setup teapot front color data
 	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer.vertexNormal)
 	gl.vertexAttribPointer(
 		shaderProgram.vertexNormalAttribute, 
 		model.buffer.vertexNormal.itemSize, 
+		gl.FLOAT, false, 0, 0
+	)
+
+	// Setup teapot front color data
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer.vertexFrontColor)
+	gl.vertexAttribPointer(
+		shaderProgram.vertexFrontColorAttribute, 
+		model.buffer.vertexFrontColor.itemSize, 
 		gl.FLOAT, false, 0, 0
 	)
 
