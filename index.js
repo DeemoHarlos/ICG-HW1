@@ -39,6 +39,8 @@ let curTime = 0
 function initGL(canvas) {
 	gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
 	if (!gl) return console.error('Could not initialize WebGL!')
+	if (!gl.getExtension('OES_standard_derivatives'))
+		throw 'extension not support'
 	gl.viewportWidth  = canvas.width
 	gl.viewportHeight = canvas.height
 }
@@ -76,6 +78,8 @@ async function initShaders() {
 	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute)
 	shaderProgram.vertexFrontColorAttribute = gl.getAttribLocation(shaderProgram, 'aFrontColor')
 	gl.enableVertexAttribArray(shaderProgram.vertexFrontColorAttribute)
+	shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, 'aVertexNormal');
+	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
 	shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, 'uPMatrix')
 	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix')
@@ -172,6 +176,10 @@ function drawModel(model) {
 	    model.buffer.vertexNormal     == null || 
 	    model.buffer.vertexFrontColor == null) return
 
+	// Setup Projection Matrix
+  let pMatrix = mat4.create();
+	mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
 	// Setup Model-View Matrix
 	// Note that glMatrix uses the OpenGL/Web GL convention of Post-Multiplication.
 	// Therefore the the code order is the opposite of the actual geometry operation.
@@ -184,6 +192,8 @@ function drawModel(model) {
 		model.data.center.y,
 		model.data.center.z
 	])
+
+	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix)
 
 	// Setup teapot position data
@@ -199,6 +209,14 @@ function drawModel(model) {
 	gl.vertexAttribPointer(
 		shaderProgram.vertexFrontColorAttribute, 
 		model.buffer.vertexFrontColor.itemSize, 
+		gl.FLOAT, false, 0, 0
+	)
+
+	// Setup teapot front color data
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.buffer.vertexNormal)
+	gl.vertexAttribPointer(
+		shaderProgram.vertexNormalAttribute, 
+		model.buffer.vertexNormal.itemSize, 
 		gl.FLOAT, false, 0, 0
 	)
 
