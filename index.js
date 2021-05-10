@@ -18,19 +18,19 @@ let gl
 let shaderProgram
 
 let models = [
-	// { src: 'model/Teapot.json' },
-	{ src: 'model/Car_road.json' },
-	{ src: 'model/Church_s.json' },
-	{ src: 'model/Csie.json' },
-	{ src: 'model/Easter.json' },
-	{ src: 'model/Fighter.json' },
-	{ src: 'model/Kangaroo.json' },
-	{ src: 'model/Longteap.json' },
-	{ src: 'model/Mercedes.json' },
-	{ src: 'model/Mig27.json' },
-	{ src: 'model/Patchair.json' },
-	{ src: 'model/Plant.json' },
-	{ src: 'model/Tomcat.json' }
+	{ src: 'model/Teapot.json' },
+	// { src: 'model/Car_road.json' },
+	// { src: 'model/Church_s.json' },
+	// { src: 'model/Csie.json' },
+	// { src: 'model/Easter.json' },
+	// { src: 'model/Fighter.json' },
+	// { src: 'model/Kangaroo.json' },
+	// { src: 'model/Longteap.json' },
+	// { src: 'model/Mercedes.json' },
+	// { src: 'model/Mig27.json' },
+	// { src: 'model/Patchair.json' },
+	// { src: 'model/Plant.json' },
+	// { src: 'model/Tomcat.json' }
 ]
 
 let curTime = 0
@@ -173,9 +173,11 @@ function drawModel(model) {
 	    model.buffer.vertexFrontColor == null) return
 
 	// Setup Model-View Matrix
+	// Note that glMatrix uses the OpenGL/Web GL convention of Post-Multiplication.
+	// Therefore the the code order is the opposite of the actual geometry operation.
 	let mvMatrix = mat4.create()
 	mat4.identity(mvMatrix)
-	mat4.translate(mvMatrix, [0, 0, -10])
+	mat4.translate(mvMatrix, [0, 0, -40])
 	mat4.rotate(mvMatrix, degToRad(model.angle), [0, 1, 0])
 	mat4.translate(mvMatrix, [
 		model.data.center.x,

@@ -6,43 +6,6 @@
   <script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
   <script type="text/javascript" src="lib/webgl-utils.js"></script>
   <script type="text/javascript" src="lib/scaleToWindow.js"></script>
-
-  <script id="fragmentShader" type="fragment" src="fragmentShader.c">
-    // TODO HERE: 
-    // modify fragment shader or write another one
-    // to implement flat, gouraud and phong shading
-
-    precision mediump float;
-
-    varying vec4 fragcolor;
-
-    void main(void) {
-      gl_FragColor = fragcolor;
-    }
-  </script>
-  <script id="vertexShader" type="vertex" src="vertexShader.c">
-    // TODO HERE:
-    // modify vertex shader or write another one
-    // to implement flat, gouraud and phong shading
-    
-    // NOTE:
-    // if you want to write bonus part (texture mapping),
-    // only Teapot.json has extra attribute "vertexTextureCoords"
-    // which is used for texture mappping.
-    
-    attribute vec3 aVertexPosition;
-    attribute vec3 aFrontColor;
-    
-    uniform mat4 uMVMatrix;
-    uniform mat4 uPMatrix;
-    
-    varying vec4 fragcolor;
-    
-    void main(void) {
-      fragcolor = vec4(aFrontColor.rgb, 1.0);
-      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-    }
-  </script>
 </head>
 <body onload="webGLStart()" style="margin: 0; overflow: hidden; background-color: #111;">
   <canvas id="ICG-canvas" style="border: none;" width="1920" height="1080"></canvas>
