@@ -7,7 +7,7 @@
 // only Teapot.json has extra attribute "vertexTextureCoords"
 // which is used for texture mappping.
 
-uniform int shading;
+uniform int SHADING;
 uniform mat4 Mmat;
 uniform mat4 Pmat;
 
@@ -15,35 +15,39 @@ attribute vec3 srcPos;
 attribute vec3 srcNorm;
 attribute vec3 fColor;
 
-varying vec4 color;
-varying vec3 frontColor;
-
+varying vec3 color;
 varying vec3 pos;
-
-varying vec3 pos_n;
 varying vec3 norm_n;
 varying vec3 src2light_n;
 varying vec3 lightPos_n;
 
 void main(void) {
-  // Light source position and color
-  vec3 lightPos = vec3(30, 30, -30);
-  vec3 lightC = vec3(1.0, .95, .85);
 
   // get position from pov
   pos = (Mmat * vec4(srcPos, 1.0)).xyz;
+  gl_Position = Pmat * vec4(pos, 1.0);
+
   // get normal from pov
   vec3 norm = mat3(Mmat) * srcNorm;
 
+  // Light source
+  vec3 lightPos = vec3(30, 30, -30);
+  vec3 lightC = vec3(1.0, .9, .65);
+
   // vectors
-  pos_n = normalize(pos); // normal of view to src
-  norm_n = normalize(norm); // trangle normal
-  src2light_n = normalize(lightPos - pos); // triangle to light
-  lightPos_n = normalize(src2light_n - pos_n); // pov to light
+  vec3 pos_n = normalize(pos);
+  norm_n = normalize(norm);
+  src2light_n = normalize(lightPos - pos);
+  lightPos_n = normalize(src2light_n - pos_n);
+
+  if (SHADING == 0 || SHADING == 1) {
+    color = fColor;
+    return;
+  }
 
   // intensities
-  float dif_i = max(dot(src2light_n, norm_n), 0.0); //  diffuse intensity
-  float spc_i = max(dot( lightPos_n, norm_n), 0.0); // specular intensity
+  float dif_i = max(dot(src2light_n, norm_n), 0.0);
+  float spc_i = max(dot( lightPos_n, norm_n), 0.0);
 
   // constants
   float amb_c =  0.1;
@@ -58,12 +62,6 @@ void main(void) {
 
   // gouraud shading
   vec3 grd = amb + dif + spc;
+  color = grd;
 
-  // color = vec4(fColor.rgb, 1.0);
-  frontColor = fColor;
-  color = vec4(grd, 1.0);
-  norm_n = norm;
-  // gl_Position = Pmat * Mmat * vec4(srcPos, 1.0);
-
-  gl_Position = Pmat * vec4(pos, 1.0);  
 }

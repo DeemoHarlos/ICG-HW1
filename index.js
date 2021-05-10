@@ -17,8 +17,8 @@ let req = (url, type) => {
 let gl
 let shaderProgram
 
-const shading = 0 // 0 FLAT 1 GOURAUD 2 PHONG
-const models = [
+let SHADING = 3 // 0 NO SHADING 1 FLAT 2 GOURAUD 3 PHONG
+let models = [
 	{ src: 'model/Teapot.json' },
 	// { src: 'model/Car_road.json' },
 	// { src: 'model/Church_s.json' },
@@ -62,18 +62,20 @@ async function getShader(url, shaderType) {
 }
 
 async function initShaders() {
-	let fragmentShader = await getShader('shader/fragmentShader.c', gl.FRAGMENT_SHADER)
 	let vertexShader   = await getShader('shader/vertexShader.c'  , gl.VERTEX_SHADER  )
+	let fragmentShader = await getShader('shader/fragmentShader.c', gl.FRAGMENT_SHADER)
 
 	shaderProgram = gl.createProgram()
 	gl.attachShader(shaderProgram, vertexShader)
 	gl.attachShader(shaderProgram, fragmentShader)
 	gl.linkProgram(shaderProgram)
-
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
 		console.error('Could not initialise shaders')
-
 	gl.useProgram(shaderProgram)
+
+	shaderProgram.SHADING = gl.getUniformLocation(shaderProgram, 'SHADING')
+	shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, 'Pmat')
+	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'Mmat')
 
 	shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'srcPos')
 	gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute)
@@ -81,10 +83,6 @@ async function initShaders() {
 	gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 	shaderProgram.vertexFrontColorAttribute = gl.getAttribLocation(shaderProgram, 'fColor')
 	gl.enableVertexAttribArray(shaderProgram.vertexFrontColorAttribute)
-
-	shaderProgram.pMatrixUniform  = gl.getUniformLocation(shaderProgram, 'Pmat')
-	shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'Mmat')
-	shaderProgram.shading = gl.getUniformLocation(shaderProgram, 'shading')
 }
 
 // load
@@ -195,7 +193,7 @@ function drawModel(model) {
 		model.data.center.z
 	])
 
-	gl.uniformMatrix4fv(shaderProgram.shading, false, [shading])
+	gl.uniform1i(shaderProgram.SHADING, [SHADING])
 	gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 	gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix)
 
