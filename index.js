@@ -1,16 +1,14 @@
-let models, opt
-
 const Options = Vue.createApp({
 	async mounted() {
 		await Promise.all(this.models.map(async model => {
 			model.data = await req(model.src, 'json')
 		}))
-		this.models.forEach(preProcess)
-		startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, dt => {
+		this.models.forEach(this.preProcess);
+		await startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, (gl, sp, dt, dbg) => {
 			this.models.forEach(model => {
 				model.angle += 0.05 * dt
 			})
-			this.models.forEach(model => drawModel(gl, model))
+			this.models.forEach(model => drawModel(gl, sp, model, this.opt, dbg))
 		})
 	},
 	data() { return {
