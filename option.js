@@ -1,4 +1,18 @@
+let models, opt
+
 const Options = Vue.createApp({
+	async mounted() {
+		await Promise.all(this.models.map(async model => {
+			model.data = await req(model.src, 'json')
+		}))
+		this.models.forEach(preProcess)
+		startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, dt => {
+			this.models.forEach(model => {
+				model.angle += 0.05 * dt
+			})
+			this.models.forEach(model => drawModel(gl, model))
+		})
+	},
 	data() { return {
 		models: [
 			{ src: 'model/Teapot.json' },
@@ -36,8 +50,45 @@ const Options = Vue.createApp({
 			lightC: [1.0, .9, .65],
 		},
 	}},
-	async mounted() {
-		models = this.models
-		opt = this.opt
-	}
-})
+	methods: {
+		// some utils
+		degToRad(deg) {
+			return deg * Math.PI / 180
+		},
+		preProcess(model) {
+			let positions = []
+			let index = 0
+			model.data.vertexPositions.forEach((e, i) => {
+				if (i % 3 === 0) index = positions.push({}) - 1
+						 if (i % 3 === 0) positions[index].x = e
+				else if (i % 3 === 1) positions[index].y = e
+				else if (i % 3 === 2) positions[index].z = e
+			})
+			let max = positions.reduce((r, e) => { return {
+				x: Math.max(r.x, e.x),
+				y: Math.max(r.y, e.y),
+				z: Math.max(r.z, e.z)
+			}})
+			let min = positions.reduce((r, e) => { return {
+				x: Math.min(r.x, e.x),
+				y: Math.min(r.y, e.y),
+				z: Math.min(r.z, e.z)
+			}})
+			model.data.bound = {
+				max: max,
+				min: min
+			}
+			model.data.center = {
+				x: (max.x + min.x) / 2,
+				y: (max.y + min.y) / 2,
+				z: (max.z + min.z) / 2
+			}
+			model.data.size = {
+				x: max.x - min.x,
+				y: max.y - min.y,
+				z: max.z - min.z
+			}
+			model.angle = 180
+		},
+	},
+}).mount('#options')
