@@ -13,36 +13,8 @@ let req = (url, type) => {
 	})
 }
 
-// common variables
-let gl
-let sp
-
-let shading = 3 // 0 NO shading 1 FLAT 2 GOURAUD 3 PHONG
-let models = [
-	{ src: 'model/Teapot.json' },
-	// { src: 'model/Car_road.json' },
-	// { src: 'model/Church_s.json' },
-	// { src: 'model/Csie.json' },
-	// { src: 'model/Easter.json' },
-	// { src: 'model/Fighter.json' },
-	// { src: 'model/Kangaroo.json' },
-	// { src: 'model/Longteap.json' },
-	// { src: 'model/Mercedes.json' },
-	// { src: 'model/Mig27.json' },
-	// { src: 'model/Patchair.json' },
-	// { src: 'model/Plant.json' },
-	// { src: 'model/Tomcat.json' }
-]
-
-// Light source
-let lightPos = [30, 30, -30];
-let lightC = [1.0, .9, .65];
-
-// constants
-let amb_c =  0.1
-let dif_c =  0.8
-let spc_c =  0.4
-let spc_p = 16.0
+let models
+let opt = {}
 
 let unis = [
 	'shading',
@@ -127,7 +99,6 @@ async function loadModel(model) {
 	model.data = await req(model.src, 'json')
 	attrs.forEach(attr => {
 		let src = model.data[attr.src]
-		console.log(attr.src)
 		if (src) {
 			let buffer = gl.createBuffer()
 			gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
@@ -221,15 +192,15 @@ function drawModel(model) {
 		model.data.center.z
 	])
 
-	passUni(sp, 'shading',  '1i' , shading)
+	passUni(sp, 'shading',  '1i' , opt.shading)
 	passUni(sp, 'Pmat',     '4fv', Pmat, true)
 	passUni(sp, 'Mmat',     '4fv', Mmat, true)
-	passUni(sp, 'lightPos', '3fv', lightPos)
-	passUni(sp, 'lightC',   '3fv', lightC)
-	passUni(sp, 'amb_c',    '1f' , amb_c)
-	passUni(sp, 'dif_c',    '1f' , dif_c)
-	passUni(sp, 'spc_c',    '1f' , spc_c)
-	passUni(sp, 'spc_p',    '1f' , spc_p)
+	passUni(sp, 'lightPos', '3fv', opt.lightPos)
+	passUni(sp, 'lightC',   '3fv', opt.lightC)
+	passUni(sp, 'amb_c',    '1f' , opt.amb_c)
+	passUni(sp, 'dif_c',    '1f' , opt.dif_c)
+	passUni(sp, 'spc_c',    '1f' , opt.spc_c)
+	passUni(sp, 'spc_p',    '1f' , opt.spc_p)
 
 	// Setup teapot data
 	attrs.forEach(attr => {
@@ -261,6 +232,7 @@ function webGLStart() {
 
 	initGL(canvas)
 	initShaders().then(async () => {
+		Options.mount('#options')
 		await initModels()
 		models.forEach(model => { model.angle = 180 })
 		gl.clearColor(0.0, 0.1, 0.1, 1.0)

@@ -6,9 +6,85 @@
   <script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
   <script type="text/javascript" src="lib/webgl-utils.js"></script>
   <script type="text/javascript" src="lib/scaleToWindow.js"></script>
+
+  <!--BOOTSTRAP-->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+	<!--VUE-->
+	<script src="https://unpkg.com/vue@3.0.11"></script>
 </head>
-<body onload="webGLStart()" style="margin: 0; overflow: hidden; background-color: #111;">
+<body onload="webGLStart()" style="margin: 0; overflow-x: hidden; background-color: #111;">
   <canvas id="ICG-canvas" style="border: none;" width="1920" height="1080"></canvas>
+  <div id="options" class="container-fluid p-4 text-light text-monospace">
+    <h2>Options</h2>
+    <div class="row my-4">
+      <div class="h4">Shading</div>
+      <div class="col-4">
+        <label for="shading" class="form-label m-1">Shading Type</label><br>
+        <select name="shading" class="form-select" v-model.number="opt.shading">
+          <option v-for="shadingType in shadings" :value="shadingType.v">
+            {{ shadingType.name }}
+          </option>
+        </select>
+      </div>
+      <div class="col-2 d-flex flex-row flex-wrap">
+        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Ambient</label>
+        <input name="ambient" class="flex-fill form-text m-0"
+          type="text" v-model="opt.amb_c"
+          style="min-width: 0; width: 0;"
+        />
+      </div>
+      <div class="col-2 d-flex flex-row flex-wrap">
+        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Diffuse</label>
+        <input name="diffuse" class="flex-fill form-text m-0"
+          type="text" v-model="opt.dif_c"
+          style="min-width: 0; width: 0;"
+        />
+      </div>
+      <div class="col-2 d-flex flex-row flex-wrap">
+        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
+        <input name="specular" class="flex-fill form-text m-0"
+          type="text" v-model="opt.spc_c"
+          style="min-width: 0; width: 0;"
+        />
+      </div>
+      <div class="col-2 d-flex flex-row flex-wrap">
+        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
+        <input name="specularPower" class="flex-fill form-text m-0"
+          type="text" v-model="opt.spc_p"
+          style="min-width: 0; width: 0;"
+        />
+      </div>
+    </div>
+    <div class="row my-4">
+      <div class="h4">Light Source</div>
+      <div class="col-6">
+        <div class="h6">Position</div>
+        <div class="d-flex flex-row">
+          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col d-flex flex-row px-2 align-items-center">
+            <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+            <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
+              type="text" v-model="opt.lightPos[i]"
+              style="min-width: 0; width: 0;"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="h6">Color</div>
+        <div class="d-flex flex-row">
+          <div v-for="(e, i) in ['R', 'G', 'B']" class="col d-flex flex-row px-2 align-items-center">
+            <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+            <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
+              type="text" v-model="opt.lightC[i]"
+              style="min-width: 0; width: 0;"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript" src="option.js"></script>
   <script type="text/javascript" src="index.js"></script>
 </body>
 </html>
