@@ -12,188 +12,206 @@
   <!--BOOTSTRAP-->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
-	<!--VUE-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+  <!--VUE-->
 	<script src="https://unpkg.com/vue@3.0.11"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue3-sfc-loader/dist/vue3-sfc-loader.js"></script> -->
 </head>
-<body style="margin: 0; overflow-x: hidden; background-color: #111;">
+<body style="margin: 0; overflow: hidden; background-color: #111;">
   <canvas id="ICG-canvas" style="border: none;" width="1920" height="1080"></canvas>
-  <div id="options" class="container-fluid p-4 text-light text-monospace" style="max-width: 1200px;">
-    <h2>Options</h2>
-    <div class="row my-3">
-      <div class="h4">Camera</div>
-      <div class="col-6">
-        <div class="h6">Position</div>
-        <div class="d-flex flex-row">
-          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`camPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`camPos-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="camera.pos[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="camera.pos[i]"
-              min="-50" max="50" step="1"
-            >
-          </div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="h6">Rotation</div>
-        <div class="d-flex flex-row flex-wrap">
-          <div v-for="(e, i) in ['α', 'β', 'γ']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`camAngle-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`camAngle-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="camera.angle[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="camera.angle[i]"
-              min="-180" max="180" step="1"
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row my-3">
-      <div class="h4">Light Source</div>
-      <div class="col-6">
-        <div class="h6">Position</div>
-        <div class="d-flex flex-row">
-          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="light.pos[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="light.pos[i]"
-              min="-50" max="50" step="1"
-            >
-          </div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="h6">Color</div>
-        <div class="d-flex flex-row flex-wrap">
-          <div v-for="(e, i) in ['R', 'G', 'B']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="light.color[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="light.color[i]"
-              min="0" max="1" step="0.01"
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-for="obj in objects" class="my-5">
-      <div class="h4">{{ obj.model.name }}</div>
-      <div class="row">
-        <div class="col-4">
-          <label for="shading" class="form-label m-1">Shading Type</label><br>
-          <select name="shading" class="form-select" v-model.number="obj.shading.type">
-            <option v-for="shadingType in shadings" :value="shadingType.v">
-              {{ shadingType.name }}
-            </option>
-          </select>
-        </div>
-        <div class="col-2 flex-wrap">
-          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Ambient</label>
-          <input name="ambient" class="flex-fill form-text m-0 w-100"
-            type="text" v-model="obj.shading.amb_c"
-            style="min-width: 0;"
-          />
-          <input type="range" class="form-range" v-model="obj.shading.amb_c"
-            min="0" max="1" step="0.01"
-          >
-        </div>
-        <div class="col-2 flex-wrap">
-          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Diffuse</label>
-          <input name="diffuse" class="flex-fill form-text m-0 w-100"
-            type="text" v-model="obj.shading.dif_c"
-            style="min-width: 0;"
-          />
-          <input type="range" class="form-range" v-model="obj.shading.dif_c"
-            min="0" max="1" step="0.01"
-          >
-        </div>
-        <div class="col-2 flex-wrap">
-          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
-          <input name="specular" class="flex-fill form-text m-0 w-100"
-            type="text" v-model="obj.shading.spc_c"
-            style="min-width: 0;"
-          />
-          <input type="range" class="form-range" v-model="obj.shading.spc_c"
-            min="0" max="1" step="0.01"
-          >
-        </div>
-        <div class="col-2 flex-wrap">
-          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular Power</label>
-          <input name="specularPower" class="flex-fill form-text m-0 w-100"
-            type="text" v-model="obj.shading.spc_p"
-            style="min-width: 0;"
-          />
-          <input type="range" class="form-range" v-model="obj.shading.spc_p_log"
-            min="-3" max="10" step="0.1"
-          >
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-4">
-          <div class="h6">Scale</div>
+  <div id="options" class="container-fluid p-4 text-light font-monospace d-flex flex-column h-100" style="max-width: 1000px;">
+    <div class="mb-4 p-4">
+      <h2>Options</h2>
+      <div class="row my-4">
+        <div class="h4">Camera</div>
+        <div class="col-6">
+          <div class="h6">Position</div>
           <div class="d-flex flex-row">
-            <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+            <div v-for="e in camera.pos" class="col px-2 align-items-center">
               <div class="d-flex flex-row">
-                <label :for="`scale-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-                <input :name="`scale-${e}`" class="flex-fill form-text m-0 me-3"
-                  type="text" v-model="obj.transform.scale[i]"
+                <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                <input class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="e.value"
                   style="min-width: 0; width: 0;"
                 />
+                <div>
+                  <input type="checkbox" class="btn-check" :id="`camera-pos-${e.name}`" v-model="e.anim" autocomplete="off">
+                  <label class="btn btn-outline-primary rounded-circle p-1" :for="`camera-pos-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                </div>
               </div>
-              <input type="range" class="form-range pe-3" v-model="obj.transform.scale[i]"
-                min="0" max="20" step="0.1"
+              <input type="range" class="form-range" v-model="e.value"
+                :min="e.min" :max="e.max" :step="e.step"
               >
             </div>
           </div>
         </div>
-        <div class="col-4">
-          <div class="h6">Position (Scaled)</div>
-          <div class="d-flex flex-row">
-            <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
-              <div class="d-flex flex-row">
-                <label :for="`camPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-                <input :name="`camPos-${e}`" class="flex-fill form-text m-0 me-3"
-                  type="text" v-model="obj.transform.pos[i]"
-                  style="min-width: 0; width: 0;"
-                />
-              </div>
-              <input type="range" class="form-range pe-3" v-model="obj.transform.pos[i]"
-                min="-50" max="50" step="1"
-              >
-            </div>
-          </div>
-        </div>
-        <div class="col-4">
+        <div class="col-6">
           <div class="h6">Rotation</div>
           <div class="d-flex flex-row flex-wrap">
-            <div v-for="(e, i) in ['α', 'β', 'γ']" class="col px-2 align-items-center">
+            <div v-for="e in camera.angle" class="col px-2 align-items-center">
               <div class="d-flex flex-row">
-                <label :for="`camAngle-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-                <input :name="`camAngle-${e}`" class="flex-fill form-text m-0 me-3"
-                  type="text" v-model="obj.transform.angle[i]"
+                <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                <input class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="e.value"
                   style="min-width: 0; width: 0;"
                 />
+                <div>
+                  <input type="checkbox" class="btn-check" :id="`camera-angle-${e.name}`" v-model="e.anim" autocomplete="off">
+                  <label class="btn btn-outline-primary rounded-circle p-1" :for="`camera-angle-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                </div>
               </div>
-              <input type="range" class="form-range pe-3" v-model="obj.transform.angle[i]"
-                min="-180" max="180" step="1"
+              <input type="range" class="form-range" v-model="e.value"
+                :min="e.min" :max="e.max" :step="e.step"
               >
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="h4">Light Sources</div>
+      <div v-for="light in lights" class="row my-4">
+        <div class="col-6">
+          <div class="h6">Position</div>
+          <div class="d-flex flex-row">
+            <div v-for="(e, i) in light.pos" class="col px-2 align-items-center">
+              <div class="d-flex flex-row">
+                <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                <input class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="e.value"
+                  style="min-width: 0; width: 0;"
+                />
+                <div>
+                  <input type="checkbox" class="btn-check" :id="`light${i}-pos-${e.name}`" v-model="e.anim" autocomplete="off">
+                  <label class="btn btn-outline-primary rounded-circle p-1" :for="`light${i}-pos-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                </div>
+              </div>
+              <input type="range" class="form-range" v-model="e.value"
+                :min="e.min" :max="e.max" :step="e.step"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="h6">Color</div>
+          <div class="d-flex flex-row flex-wrap">
+            <div v-for="(e, i) in light.color" class="col px-2 align-items-center">
+              <div class="d-flex flex-row">
+                <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                <input class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="e.value"
+                  style="min-width: 0; width: 0;"
+                />
+                <div>
+                  <input type="checkbox" class="btn-check" :id="`light${i}-color-${e.name}`" v-model="e.anim" autocomplete="off">
+                  <label class="btn btn-outline-primary rounded-circle p-1" :for="`light${i}-color-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                </div>
+              </div>
+              <input type="range" class="form-range" v-model="e.value"
+                :min="e.min" :max="e.max" :step="e.step"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-fill position-relative">
+      <div class="wrap position-absolute p-4 pe-4">
+        <div v-for="(obj, i) in objects" class="mb-5">
+          <div class="h4">{{ obj.model.name }}</div>
+          <div class="row mb-2">
+            <div class="col-4 d-flex flex-row align-items-center">
+              <label :for="`shading-${i}`" class="form-label m-1 me-3">Shading Type</label>
+              <select :name="`shading-${i}`" class="flex-fill form-select" v-model.number="obj.shading.type"
+                style="min-width: 0; width: 0;"
+              >
+                <option v-for="shadingType in shadings" :value="shadingType.v">
+                  {{ shadingType.name }}
+                </option>
+              </select>
+            </div>
+            <div v-for="key in ['amb_c', 'dif_c', 'spc_c', 'spc_p_log']" class="col-2 flex-wrap">
+              <div class="d-flex flex-row">
+                <label class="form-label m-0 pe-2 align-right w-auto">{{ obj.shading[key].name }}</label>
+                <input v-if="key === 'spc_p_log'" class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="obj.shading.spc_p"
+                  style="min-width: 0; width: 0;"
+                />
+                <input v-else class="flex-fill form-text m-0 me-2"
+                  type="text" v-model="obj.shading[key].value"
+                  style="min-width: 0; width: 0;"
+                />
+                <div>
+                  <input type="checkbox" class="btn-check" :id="`${obj.shading[key].name}-${i}`" v-model="obj.shading[key].anim" autocomplete="off">
+                  <label class="btn btn-outline-primary rounded-circle p-1" :for="`${obj.shading[key].name}-${i}`"><i class="bi bi-play-fill"></i></label>
+                </div>
+              </div>
+              <input type="range" class="form-range" v-model="obj.shading[key].value"
+                :min="obj.shading[key].min" :max="obj.shading[key].max" :step="obj.shading[key].step"
+              >
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <div class="h6">Scale</div>
+              <div class="d-flex flex-row">
+                <div v-for="e in obj.transform.scale" class="col px-2 align-items-center">
+                  <div class="d-flex flex-row">
+                    <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                    <input class="flex-fill form-text m-0 me-2"
+                      type="text" v-model="e.value"
+                      style="min-width: 0; width: 0;"
+                    />
+                    <div>
+                      <input type="checkbox" class="btn-check" :id="`scale-${i}-${e.name}`" v-model="e.anim" autocomplete="off">
+                      <label class="btn btn-outline-primary rounded-circle p-1" :for="`scale-${i}-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                    </div>
+                  </div>
+                  <input type="range" class="form-range" v-model="e.value"
+                    :min="e.min" :max="e.max" :step="e.step"
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="h6">Position (Scaled)</div>
+              <div class="d-flex flex-row">
+                <div v-for="e in obj.transform.pos" class="col px-2 align-items-center">
+                  <div class="d-flex flex-row">
+                    <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                    <input class="flex-fill form-text m-0 me-2"
+                      type="text" v-model="e.value"
+                      style="min-width: 0; width: 0;"
+                    />
+                    <div>
+                      <input type="checkbox" class="btn-check" :id="`pos-${i}-${e.name}`" v-model="e.anim" autocomplete="off">
+                      <label class="btn btn-outline-primary rounded-circle p-1" :for="`pos-${i}-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                    </div>
+                  </div>
+                  <input type="range" class="form-range" v-model="e.value"
+                    :min="e.min" :max="e.max" :step="e.step"
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="h6">Rotation</div>
+              <div class="d-flex flex-row flex-wrap">
+                <div v-for="e in obj.transform.angle" class="col px-2 align-items-center">
+                  <div class="d-flex flex-row">
+                    <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
+                    <input class="flex-fill form-text m-0 me-2"
+                      type="text" v-model="e.value"
+                      style="min-width: 0; width: 0;"
+                    />
+                    <div>
+                      <input type="checkbox" class="btn-check" :id="`angle-${i}-${e.name}`" v-model="e.anim" autocomplete="off">
+                      <label class="btn btn-outline-primary rounded-circle p-1" :for="`angle-${i}-${e.name}`"><i class="bi bi-play-fill"></i></label>
+                    </div>
+                  </div>
+                  <input type="range" class="form-range" v-model="e.value"
+                    :min="e.min" :max="e.max" :step="e.step"
+                  >
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -201,5 +219,46 @@
     </div>
   </div>
   <script type="text/javascript" src="index.js"></script>
+  <style>
+    #options {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      opacity: 0;
+      transition: all 300ms;
+    }
+    #options > div {
+      background-color: black;
+      border-radius: 10px;
+    }
+    #options:hover {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      opacity: .7;
+    }
+    #options .wrap {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    #options input:not([type=range]), #options select {
+      background-color:#333;
+      color: white!important;
+      border: none;
+      border-radius: 3px;
+      font-size: 1.5em!important;
+      padding: 0 .25em;
+      text-align: center;
+    }
+    .flex-row {
+      align-items: center;
+    }
+  </style>
 </body>
 </html>
