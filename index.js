@@ -6,58 +6,24 @@ const Options = Vue.createApp({
 			model.data = await req(model.src, 'json')
 		}))
 		this.models.forEach(this.preProcess);
-		this.models.forEach((model, i) => {
-			this.objects.push({
-				model: model,
-				shading: {
-					type: 3,
-					amb_c: this.ctrl('Ambient',  .1, false, false, 0, 1, .01),
-					dif_c: this.ctrl('Diffuse',  .8, false, false, 0, 1, .01),
-					spc_c: this.ctrl('Specular',  .4, false, false, 0, 1, .01),
-					spc_p: this.power(4.0),
-					spc_p_log: this.ctrl('Spec Pow', 4.0, false, false, -3, 7, .1),
-				},
-				transform: {
-					scale: this.ctrlScale([1, 1, 1]),
-					pos: this.ctrlPos([30 * i, 0, 0]),
-					angle: this.ctrlAngle([0, 0, 0]),
-				}
-			})
-		});
+		this.models.forEach(this.initModel);
 		await startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, (gl, sp, dt, dbg) => {
 			[ ...this.camera.pos,
 				...this.camera.angle,
 				...[].concat.apply([], this.lights.map(x => x.pos)),
 				...[].concat.apply([], this.lights.map(x => x.color))
 			].forEach(x => this.animate(x, dt))
+			this.objects.forEach(obj => {[
+				obj.shading.amb_c,
+				obj.shading.dif_c,
+				obj.shading.spc_c,
+				obj.shading.spc_p_log,
+				...obj.transform.scale,
+				...obj.transform.pos,
+				...obj.transform.angle,
+			].forEach(x => this.animate(x, dt))})
 			this.objects.forEach(obj => {
-				[ obj.shading.amb_c,
-					obj.shading.dif_c,
-					obj.shading.spc_c,
-					obj.shading.spc_p_log,
-					...obj.transform.scale,
-					...obj.transform.pos,
-					...obj.transform.angle,
-				].forEach(x => this.animate(x, dt))
-			})
-			this.objects.forEach(obj => {
-				obj.shading.spc_p = this.power(obj.shading.spc_p_log.value)
-				let sh = obj.shading
-				let tr = obj.transform
-				let params = {
-					shading: {
-						type: sh.type,
-						amb_c: sh.amb_c.value,
-						dif_c: sh.dif_c.value,
-						spc_c: sh.spc_c.value,
-						spc_p: sh.spc_p,
-						spc_p_log: sh.spc_p_log.value,
-					},
-					transform: { scale: tr.scale.map(v), pos: tr.pos.map(v), angle: tr.angle.map(v) },
-					camera: { pos: this.camera.pos.map(v), angle: this.camera.angle.map(v) },
-					lights: this.lights.map(x => ({ pos: x.pos.map(v), color: x.color.map(v)})),
-				}
-				drawModel(gl, sp, obj.model, params, dbg)
+				drawModel(gl, sp, obj.model, this.getParmas(obj), dbg)
 			})
 		})
 	},
@@ -92,10 +58,6 @@ const Options = Vue.createApp({
 		objects: []
 	}},
 	methods: {
-		// some utils
-		degToRad(deg) {
-			return deg * Math.PI / 180
-		},
 		preProcess(model) {
 			let positions = []
 			let index = 0
@@ -130,6 +92,52 @@ const Options = Vue.createApp({
 				z: max.z - min.z
 			}
 		},
+		initModel(model, i) {
+			this.objects.push({
+				model: model,
+				shading: {
+					type: 3,
+					amb_c: this.ctrl('Ambient',  .1, false, false, 0, 1, .01),
+					dif_c: this.ctrl('Diffuse',  .8, false, false, 0, 1, .01),
+					spc_c: this.ctrl('Specular',  .4, false, false, 0, 1, .01),
+					spc_p: this.power(4.0),
+					spc_p_log: this.ctrl('Spec Pow', 4.0, false, false, -3, 7, .1),
+				},
+				transform: {
+					scale: this.ctrlScale([1, 1, 1]),
+					pos: this.ctrlPos([30 * i, 0, 0]),
+					angle: this.ctrlAngle([0, 0, 0]),
+				}
+			})
+		},
+		animate(e, dt) {
+			if (e.anim) {
+				e.t += dt * 0.0005
+				let range = e.max - e.min
+				if (e.loop) e.value = (range * ((e.t + 1.5) % 1) + e.min).toFixed(2)
+				else e.value = (range * (Math.sin(e.t * 2 * Math.PI) + 1) / 2 + e.min).toFixed(2)
+			}
+		},
+		getParmas(obj) {
+			obj.shading.spc_p = this.power(obj.shading.spc_p_log.value)
+			let sh = obj.shading
+			let tr = obj.transform
+			let params = {
+				shading: {
+					type: sh.type,
+					amb_c: sh.amb_c.value,
+					dif_c: sh.dif_c.value,
+					spc_c: sh.spc_c.value,
+					spc_p: sh.spc_p,
+					spc_p_log: sh.spc_p_log.value,
+				},
+				transform: { scale: tr.scale.map(v), pos: tr.pos.map(v), angle: tr.angle.map(v) },
+				camera: { pos: this.camera.pos.map(v), angle: this.camera.angle.map(v) },
+				lights: this.lights.map(x => ({ pos: x.pos.map(v), color: x.color.map(v)})),
+			}
+			return params
+		},
+		// utils
 		power(log) {
 			return Math.pow(2, log).toFixed(2)
 		},
@@ -166,14 +174,6 @@ const Options = Vue.createApp({
 				this.ctrl('Pitch', angle[1], false, true, -180, 180, 1),
 				this.ctrl('Roll' , angle[2], false, true, -180, 180, 1)
 			]
-		},
-		animate(e, dt) {
-			if (e.anim) {
-				e.t += dt * 0.0005
-				let range = e.max - e.min
-				if (e.loop) e.value = (range * ((e.t + 1.5) % 1) + e.min).toFixed(2)
-				else e.value = (range * (Math.sin(e.t * 2 * Math.PI) + 1) / 2 + e.min).toFixed(2)
-			}
 		},
 	},
 }).mount('#options')
