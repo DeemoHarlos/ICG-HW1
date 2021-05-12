@@ -4,28 +4,61 @@ const Options = Vue.createApp({
 			model.data = await req(model.src, 'json')
 		}))
 		this.models.forEach(this.preProcess);
-		await startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, (gl, sp, dt, dbg) => {
-			this.models.forEach(model => {
-				model.angle += 0.05 * dt
+		this.models.forEach((model, i) => {
+			let ct = model.data.center
+			let sz = model.data.size
+			let scaling = (25 / Math.max(sz.x, sz.y, sz.z)).toFixed(1)
+			this.objects.push({
+				model: model,
+				shading: {
+					type: 3,
+					amb_c:  0.1,
+					dif_c:  0.8,
+					spc_c:  0.4,
+					spc_p: 16.0,
+					spc_p_log: 4.0,
+				},
+				transform: {
+					scale: [scaling, scaling, scaling],
+					pos: [
+						(-ct.x * scaling + 30 * i).toFixed(0),
+						(-ct.y * scaling).toFixed(0),
+						(-ct.z * scaling).toFixed(0)
+					],
+					angle: [0, 0, 0],
+				}
 			})
-			this.models.forEach(model => drawModel(gl, sp, model, this.opt, dbg))
+		});
+		await startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, (gl, sp, dt, dbg) => {
+			this.objects.forEach(obj => {
+				// obj.transform.angle[0] += 0.05 * dt
+			})
+			this.objects.forEach(obj => {
+				let params = {
+					shading: obj.shading,
+					transform: obj.transform,
+					camera: { pos: this.camera.pos, angle: this.camera.angle },
+					light: { pos: this.light.pos, color: this.light.color },
+				}
+				drawModel(gl, sp, obj.model, params, dbg)
+			})
 		})
 	},
 	data() { return {
 		models: [
-			{ src: 'model/Teapot.json' },
-			// { src: 'model/Car_road.json' },
-			// { src: 'model/Church_s.json' },
-			// { src: 'model/Csie.json' },
-			// { src: 'model/Easter.json' },
-			// { src: 'model/Fighter.json' },
-			// { src: 'model/Kangaroo.json' },
-			// { src: 'model/Longteap.json' },
-			// { src: 'model/Mercedes.json' },
-			// { src: 'model/Mig27.json' },
-			// { src: 'model/Patchair.json' },
-			// { src: 'model/Plant.json' },
-			// { src: 'model/Tomcat.json' }
+			{ name: 'Teapot',   src: 'model/Teapot.json'   },
+			{ name: 'Car_road', src: 'model/Car_road.json' },
+			{ name: 'Church_s', src: 'model/Church_s.json' },
+			// { name: 'Csie',     src: 'model/Csie.json'     },
+			// { name: 'Easter',   src: 'model/Easter.json'   },
+			// { name: 'Fighter',  src: 'model/Fighter.json'  },
+			// { name: 'Kangaroo', src: 'model/Kangaroo.json' },
+			// { name: 'Longteap', src: 'model/Longteap.json' },
+			// { name: 'Mercedes', src: 'model/Mercedes.json' },
+			// { name: 'Mig27',    src: 'model/Mig27.json'    },
+			// { name: 'Patchair', src: 'model/Patchair.json' },
+			// { name: 'Plant',    src: 'model/Plant.json'    },
+			// { name: 'Tomcat',   src: 'model/Tomcat.json'   }
 		],
 		shadings: [
 			{ v: 0, name: 'No Shading' },
@@ -33,25 +66,15 @@ const Options = Vue.createApp({
 			{ v: 2, name: 'Gouraud Shading' },
 			{ v: 3, name: 'Phong Shading' },
 		],
-		opt: {
-			// 0 No shading 1 FLAT 2 GOURAUD 3 PHONG
-			shading: 3,
-	
-			// constants
-			amb_c:  0.1,
-			dif_c:  0.8,
-			spc_c:  0.4,
-			spc_p: 16.0,
-			spc_p_log: 4.0,
-	
-			// Light source
-			lightPos: [30, 30, -30],
-			lightC: [1.0, .9, .65],
-
-			// camera
-			camPos: [0, 25, 40],
-			camAngle: [0, -30, 0],
+		light: {
+			pos: [30, 30, -30],
+			color: [1.0, .9, .65],
 		},
+		camera: {
+			pos: [0, 25, 40],
+			angle: [0, -30, 0],
+		},
+		objects: []
 	}},
 	methods: {
 		// some utils
@@ -91,7 +114,6 @@ const Options = Vue.createApp({
 				y: max.y - min.y,
 				z: max.z - min.z
 			}
-			model.angle = 180
 		},
 	},
 	watch: {

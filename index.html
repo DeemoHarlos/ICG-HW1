@@ -17,93 +17,9 @@
 </head>
 <body style="margin: 0; overflow-x: hidden; background-color: #111;">
   <canvas id="ICG-canvas" style="border: none;" width="1920" height="1080"></canvas>
-  <div id="options" class="container-fluid p-4 text-light text-monospace" style="max-width: 800px;">
+  <div id="options" class="container-fluid p-4 text-light text-monospace" style="max-width: 1200px;">
     <h2>Options</h2>
-    <div class="row my-4">
-      <div class="h4">Shading</div>
-      <div class="col-4">
-        <label for="shading" class="form-label m-1">Shading Type</label><br>
-        <select name="shading" class="form-select" v-model.number="opt.shading">
-          <option v-for="shadingType in shadings" :value="shadingType.v">
-            {{ shadingType.name }}
-          </option>
-        </select>
-      </div>
-      <div class="col-2 flex-wrap">
-        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Ambient</label>
-        <input name="ambient" class="flex-fill form-text m-0"
-          type="text" v-model="opt.amb_c"
-        />
-        <input type="range" class="form-range" v-model="opt.amb_c"
-          min="0" max="1" step="0.01"
-        >
-      </div>
-      <div class="col-2 flex-wrap">
-        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Diffuse</label>
-        <input name="diffuse" class="flex-fill form-text m-0"
-          type="text" v-model="opt.dif_c"
-        />
-        <input type="range" class="form-range" v-model="opt.dif_c"
-          min="0" max="1" step="0.01"
-        >
-      </div>
-      <div class="col-2 flex-wrap">
-        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
-        <input name="specular" class="flex-fill form-text m-0"
-          type="text" v-model="opt.spc_c"
-        />
-        <input type="range" class="form-range" v-model="opt.spc_c"
-          min="0" max="1" step="0.01"
-        >
-      </div>
-      <div class="col-2 flex-wrap">
-        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular Power</label>
-        <input name="specularPower" class="flex-fill form-text m-0"
-          type="text" v-model="opt.spc_p"
-        />
-        <input type="range" class="form-range" v-model="opt.spc_p_log"
-          min="-3" max="10" step="0.1"
-        >
-      </div>
-    </div>
-    <div class="row my-4">
-      <div class="h4">Light Source</div>
-      <div class="col-6">
-        <div class="h6">Position</div>
-        <div class="d-flex flex-row">
-          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="opt.lightPos[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="opt.lightPos[i]"
-              min="-50" max="50" step="1"
-            >
-          </div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="h6">Color</div>
-        <div class="d-flex flex-row flex-wrap">
-          <div v-for="(e, i) in ['R', 'G', 'B']" class="col px-2 align-items-center">
-            <div class="d-flex flex-row">
-              <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-              <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="opt.lightC[i]"
-                style="min-width: 0; width: 0;"
-              />
-            </div>
-            <input type="range" class="form-range pe-3" v-model="opt.lightC[i]"
-              min="0" max="1" step="0.01"
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row my-4">
+    <div class="row my-3">
       <div class="h4">Camera</div>
       <div class="col-6">
         <div class="h6">Position</div>
@@ -112,11 +28,11 @@
             <div class="d-flex flex-row">
               <label :for="`camPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
               <input :name="`camPos-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="opt.camPos[i]"
+                type="text" v-model="camera.pos[i]"
                 style="min-width: 0; width: 0;"
               />
             </div>
-            <input type="range" class="form-range pe-3" v-model="opt.camPos[i]"
+            <input type="range" class="form-range pe-3" v-model="camera.pos[i]"
               min="-50" max="50" step="1"
             >
           </div>
@@ -129,13 +45,156 @@
             <div class="d-flex flex-row">
               <label :for="`camAngle-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
               <input :name="`camAngle-${e}`" class="flex-fill form-text m-0 me-3"
-                type="text" v-model="opt.camAngle[i]"
+                type="text" v-model="camera.angle[i]"
                 style="min-width: 0; width: 0;"
               />
             </div>
-            <input type="range" class="form-range pe-3" v-model="opt.camAngle[i]"
+            <input type="range" class="form-range pe-3" v-model="camera.angle[i]"
               min="-180" max="180" step="1"
             >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row my-3">
+      <div class="h4">Light Source</div>
+      <div class="col-6">
+        <div class="h6">Position</div>
+        <div class="d-flex flex-row">
+          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="light.pos[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="light.pos[i]"
+              min="-50" max="50" step="1"
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="h6">Color</div>
+        <div class="d-flex flex-row flex-wrap">
+          <div v-for="(e, i) in ['R', 'G', 'B']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="light.color[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="light.color[i]"
+              min="0" max="1" step="0.01"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-for="obj in objects" class="my-5">
+      <div class="h4">{{ obj.model.name }}</div>
+      <div class="row">
+        <div class="col-4">
+          <label for="shading" class="form-label m-1">Shading Type</label><br>
+          <select name="shading" class="form-select" v-model.number="obj.shading.type">
+            <option v-for="shadingType in shadings" :value="shadingType.v">
+              {{ shadingType.name }}
+            </option>
+          </select>
+        </div>
+        <div class="col-2 flex-wrap">
+          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Ambient</label>
+          <input name="ambient" class="flex-fill form-text m-0 w-100"
+            type="text" v-model="obj.shading.amb_c"
+            style="min-width: 0;"
+          />
+          <input type="range" class="form-range" v-model="obj.shading.amb_c"
+            min="0" max="1" step="0.01"
+          >
+        </div>
+        <div class="col-2 flex-wrap">
+          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Diffuse</label>
+          <input name="diffuse" class="flex-fill form-text m-0 w-100"
+            type="text" v-model="obj.shading.dif_c"
+            style="min-width: 0;"
+          />
+          <input type="range" class="form-range" v-model="obj.shading.dif_c"
+            min="0" max="1" step="0.01"
+          >
+        </div>
+        <div class="col-2 flex-wrap">
+          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
+          <input name="specular" class="flex-fill form-text m-0 w-100"
+            type="text" v-model="obj.shading.spc_c"
+            style="min-width: 0;"
+          />
+          <input type="range" class="form-range" v-model="obj.shading.spc_c"
+            min="0" max="1" step="0.01"
+          >
+        </div>
+        <div class="col-2 flex-wrap">
+          <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular Power</label>
+          <input name="specularPower" class="flex-fill form-text m-0 w-100"
+            type="text" v-model="obj.shading.spc_p"
+            style="min-width: 0;"
+          />
+          <input type="range" class="form-range" v-model="obj.shading.spc_p_log"
+            min="-3" max="10" step="0.1"
+          >
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-4">
+          <div class="h6">Scale</div>
+          <div class="d-flex flex-row">
+            <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+              <div class="d-flex flex-row">
+                <label :for="`scale-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+                <input :name="`scale-${e}`" class="flex-fill form-text m-0 me-3"
+                  type="text" v-model="obj.transform.scale[i]"
+                  style="min-width: 0; width: 0;"
+                />
+              </div>
+              <input type="range" class="form-range pe-3" v-model="obj.transform.scale[i]"
+                min="0" max="20" step="0.1"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="h6">Position (Scaled)</div>
+          <div class="d-flex flex-row">
+            <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+              <div class="d-flex flex-row">
+                <label :for="`camPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+                <input :name="`camPos-${e}`" class="flex-fill form-text m-0 me-3"
+                  type="text" v-model="obj.transform.pos[i]"
+                  style="min-width: 0; width: 0;"
+                />
+              </div>
+              <input type="range" class="form-range pe-3" v-model="obj.transform.pos[i]"
+                min="-50" max="50" step="1"
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="h6">Rotation</div>
+          <div class="d-flex flex-row flex-wrap">
+            <div v-for="(e, i) in ['α', 'β', 'γ']" class="col px-2 align-items-center">
+              <div class="d-flex flex-row">
+                <label :for="`camAngle-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+                <input :name="`camAngle-${e}`" class="flex-fill form-text m-0 me-3"
+                  type="text" v-model="obj.transform.angle[i]"
+                  style="min-width: 0; width: 0;"
+                />
+              </div>
+              <input type="range" class="form-range pe-3" v-model="obj.transform.angle[i]"
+                min="-180" max="180" step="1"
+              >
+            </div>
           </div>
         </div>
       </div>
