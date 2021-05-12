@@ -2,29 +2,35 @@ const v = x => x.value
 
 const Options = Vue.createApp({
 	async mounted() {
+		this.camera.angle[0].anim = false
 		await Promise.all(this.models.map(async model => {
 			model.data = await req(model.src, 'json')
 		}))
 		this.models.forEach(this.preProcess);
 		this.models.forEach(this.initModel);
 		await startWebGL('#ICG-canvas', [0.0, 0.1, 0.1, 1.0], this.models, (gl, sp, dt, dbg) => {
-			[ ...this.camera.pos,
+			let thisList = [
+				...this.camera.pos,
 				...this.camera.angle,
 				...[].concat.apply([], this.lights.map(x => x.pos)),
 				...[].concat.apply([], this.lights.map(x => x.color))
-			].forEach(x => this.animate(x, dt))
-			this.objects.forEach(obj => {[
-				obj.shading.amb_c,
-				obj.shading.dif_c,
-				obj.shading.spc_c,
-				obj.shading.spc_p_log,
-				...obj.transform.scale,
-				...obj.transform.pos,
-				...obj.transform.angle,
-			].forEach(x => this.animate(x, dt))})
+			]
+			thisList.forEach(x => this.animate(x, dt))
 			this.objects.forEach(obj => {
+				let objList = [
+					obj.shading.amb_c,
+					obj.shading.dif_c,
+					obj.shading.spc_c,
+					obj.shading.spc_p_log,
+					...obj.transform.scale,
+					...obj.transform.pos,
+					...obj.transform.angle,
+				]
+				objList.forEach(x => this.animate(x, dt))
 				drawModel(gl, sp, obj.model, this.getParmas(obj), dbg)
+				objList.forEach(this.round)
 			})
+			thisList.forEach(this.round)
 		})
 	},
 	data() { return {
@@ -50,11 +56,11 @@ const Options = Vue.createApp({
 			{ v: 3, name: 'Phong Shading' },
 		],
 		lights: [
-			{ pos: this.ctrlPos([ 50, 50, 50]), color: this.ctrlColor([1.0,  .9,  .7])	 },
-			{ pos: this.ctrlPos([-50, 50,  0]), color: this.ctrlColor([ .9,  .7, 1.0])	 },
-			{ pos: this.ctrlPos([ 50, 50,-50]), color: this.ctrlColor([ .7, 1.0,  .9])	 },
+			{ pos: this.ctrlPos([ 60, 160, 30]), color: this.ctrlColor([10,  9,  7])	 },
+			{ pos: this.ctrlPos([180, 160,  0]), color: this.ctrlColor([ 9,  7, 10])	 },
+			{ pos: this.ctrlPos([240, 160,-30]), color: this.ctrlColor([ 7, 10,  9])	 },
 		],
-		camera: { pos: this.ctrlPos([30, 25, 40]), angle: this.ctrlAngle([0, -30, 0]) },
+		camera: { pos: this.ctrlPos([180, 25, 40]), angle: this.ctrlAngle([0, -30, 0]) },
 		objects: []
 	}},
 	methods: {
@@ -97,26 +103,29 @@ const Options = Vue.createApp({
 				model: model,
 				shading: {
 					type: 3,
-					amb_c: this.ctrl('Ambient',  .1, false, false, 0, 1, .01),
-					dif_c: this.ctrl('Diffuse',  .8, false, false, 0, 1, .01),
-					spc_c: this.ctrl('Specular',  .4, false, false, 0, 1, .01),
-					spc_p: this.power(4.0),
-					spc_p_log: this.ctrl('Spec Pow', 4.0, false, false, -3, 7, .1),
+					amb_c: this.ctrl('Ambient' , .1, false, false, 0, 1, .01),
+					dif_c: this.ctrl('Diffuse' , .8, false, false, 0, 1, .01),
+					spc_c: this.ctrl('Specular', .2, false, false, 0, 1, .01),
+					spc_p: this.power(2.0),
+					spc_p_log: this.ctrl('Spec Pow', 2.0, false, false, -3, 7, .1),
 				},
 				transform: {
 					scale: this.ctrlScale([1, 1, 1]),
 					pos: this.ctrlPos([30 * i, 0, 0]),
-					angle: this.ctrlAngle([0, 0, 0]),
+					angle: this.ctrlAngle([0, i ? -90 : 0, 0]),
 				}
 			})
 		},
 		animate(e, dt) {
 			if (e.anim) {
-				e.t += dt * 0.0005
+				e.t += dt * 0.0001
 				let range = e.max - e.min
-				if (e.loop) e.value = (range * ((e.t + 1.5) % 1) + e.min).toFixed(2)
-				else e.value = (range * (Math.sin(e.t * 2 * Math.PI) + 1) / 2 + e.min).toFixed(2)
+				if (e.loop) e.value = (range * ((e.t + 1.5) % 1) + e.min)
+				else e.value = (range * (Math.sin(e.t * 2 * Math.PI) + 1) / 2 + e.min)
 			}
+		},
+		round(e) {
+			e.value = (Math.round(e.value / e.step) * e.step).toFixed(2) / 1
 		},
 		getParmas(obj) {
 			obj.shading.spc_p = this.power(obj.shading.spc_p_log.value)
@@ -144,14 +153,14 @@ const Options = Vue.createApp({
 		log(power) {
 			return Math.log2(power).toFixed(2)
 		},
-		ctrl(name, value, ani, loop, min, max, step) {
-			return { name, value, ani, loop, min, max, step, t: 0 }
+		ctrl(name, value, anim, loop, min, max, step) {
+			return { name, value, anim, loop, min, max, step, t: 0 }
 		},
 		ctrlPos(pos) {
 			return [
-				this.ctrl('X', pos[0], false, false, pos[0] - 50, pos[0] + 50, 1),
-				this.ctrl('Y', pos[1], false, false, -50, 50, 1),
-				this.ctrl('Z', pos[2], false, false, -50, 50, 1)
+				this.ctrl('X', pos[0], false, false, pos[0] - 200, pos[0] + 200, 10),
+				this.ctrl('Y', pos[1], false, false, pos[1] -  30, pos[1] +  30,  1),
+				this.ctrl('Z', pos[2], false, false, pos[1] -  30, pos[1] +  30,  1)
 			]
 		},
 		ctrlScale(scale) {
@@ -163,14 +172,14 @@ const Options = Vue.createApp({
 		},
 		ctrlColor(color) {
 			return [
-				this.ctrl('R', color[0], false, false, 0, 1, .01),
-				this.ctrl('G', color[1], false, false, 0, 1, .01),
-				this.ctrl('B', color[2], false, false, 0, 1, .01)
+				this.ctrl('R', color[0], false, false, 0, 10, .1),
+				this.ctrl('G', color[1], false, false, 0, 10, .1),
+				this.ctrl('B', color[2], false, false, 0, 10, .1)
 			]
 		},
 		ctrlAngle(angle) {
 			return [
-				this.ctrl('Yaw'  , angle[0], false, true, -180, 180, 1),
+				this.ctrl('Yaw'  , angle[0],  true, true, -180, 180, 1),
 				this.ctrl('Pitch', angle[1], false, true, -180, 180, 1),
 				this.ctrl('Roll' , angle[2], false, true, -180, 180, 1)
 			]

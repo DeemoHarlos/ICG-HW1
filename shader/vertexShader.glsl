@@ -11,6 +11,7 @@ uniform int shading;
 
 uniform mat4 Mmat;
 uniform mat4 Pmat;
+uniform mat4 Lmat;
 
 uniform vec3 light1Pos;
 uniform vec3 light1C;
@@ -29,6 +30,9 @@ attribute vec3 srcNorm;
 attribute vec3 fColor;
 
 varying vec3 pos;
+varying vec3 l1pos;
+varying vec3 l2pos;
+varying vec3 l3pos;
 varying vec3 norm;
 varying vec3 color;
 
@@ -45,11 +49,10 @@ vec3 getReflect(vec3 vPos, vec3 vNorm, vec3 vColor, vec3 lPos, vec3 lColor) {
   float dif_i = max(dot(src2light_n, norm_n), 0.0);
   float spc_i = max(dot( lightPos_n, norm_n), 0.0);
 
-  // Three Reflection Model
-  vec3 amb = amb_c * vColor;
+  // Reflection Model
   vec3 dif = dif_c * lColor * vColor * dif_i * light_i;
   vec3 spc = spc_c * lColor * pow(spc_i, spc_p) * light_i;
-  return amb + dif + spc;
+  return dif + spc;
 }
 
 void main(void) {
@@ -58,14 +61,19 @@ void main(void) {
   pos = (Mmat * vec4(srcPos, 1.0)).xyz;
   gl_Position = Pmat * vec4(pos, 1.0);
 
+  // light pos
+  l1pos = (Lmat * vec4(light1Pos, 1.0)).xyz;
+  l2pos = (Lmat * vec4(light2Pos, 1.0)).xyz;
+  l3pos = (Lmat * vec4(light3Pos, 1.0)).xyz;
+
   // get normal from pov
   norm = mat3(Mmat) * srcNorm;
 
-  color = (shading != 2) ? fColor : (
+  color = (shading != 2) ? fColor : ( amb_c * fColor + 
     // Gouraud shading
-    getReflect(pos, norm, fColor, light1Pos, light1C) +
-    getReflect(pos, norm, fColor, light2Pos, light2C) +
-    getReflect(pos, norm, fColor, light3Pos, light3C)
+    getReflect(pos, norm, fColor, l1pos, light1C) +
+    getReflect(pos, norm, fColor, l2pos, light2C) +
+    getReflect(pos, norm, fColor, l3pos, light3C)
   );
 
 }

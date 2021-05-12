@@ -19,7 +19,7 @@
 </head>
 <body style="margin: 0; overflow: hidden; background-color: #111;">
   <canvas id="ICG-canvas" style="border: none;" width="1920" height="1080"></canvas>
-  <div id="options" class="container-fluid p-4 text-light font-monospace d-flex flex-column h-100" style="max-width: 1000px;">
+  <div id="options" class="container-fluid p-4 text-light font-monospace d-flex flex-column h-100" style="max-width: 1200px;">
     <div class="mb-4 p-4">
       <h2>Options</h2>
       <div class="row my-4">
@@ -68,11 +68,11 @@
         </div>
       </div>
       <div class="h4">Light Sources</div>
-      <div v-for="light in lights" class="row my-4">
+      <div v-for="(light, i) in lights" class="row my-4">
         <div class="col-6">
           <div class="h6">Position</div>
           <div class="d-flex flex-row">
-            <div v-for="(e, i) in light.pos" class="col px-2 align-items-center">
+            <div v-for="e in light.pos" class="col px-2 align-items-center">
               <div class="d-flex flex-row">
                 <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
                 <input class="flex-fill form-text m-0 me-2"
@@ -93,7 +93,7 @@
         <div class="col-6">
           <div class="h6">Color</div>
           <div class="d-flex flex-row flex-wrap">
-            <div v-for="(e, i) in light.color" class="col px-2 align-items-center">
+            <div v-for="e in light.color" class="col px-2 align-items-center">
               <div class="d-flex flex-row">
                 <label class="form-label m-0 pe-2 align-right w-auto">{{ e.name }}</label>
                 <input class="flex-fill form-text m-0 me-2"

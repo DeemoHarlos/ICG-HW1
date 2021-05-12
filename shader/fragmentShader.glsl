@@ -7,11 +7,8 @@ precision highp float;
 
 uniform highp int shading;
 
-uniform highp vec3 light1Pos;
 uniform highp vec3 light1C;
-uniform highp vec3 light2Pos;
 uniform highp vec3 light2C;
-uniform highp vec3 light3Pos;
 uniform highp vec3 light3C;
 
 uniform highp float amb_c;
@@ -20,6 +17,9 @@ uniform highp float spc_c;
 uniform highp float spc_p;
 
 varying vec3 pos;
+varying vec3 l1pos;
+varying vec3 l2pos;
+varying vec3 l3pos;
 varying vec3 norm;
 varying vec3 color;
 
@@ -36,11 +36,10 @@ vec3 getReflect(vec3 vPos, vec3 vNorm, vec3 vColor, vec3 lPos, vec3 lColor) {
   float dif_i = max(dot(src2light_n, norm_n), 0.0);
   float spc_i = max(dot( lightPos_n, norm_n), 0.0);
 
-  // Three Reflection Model
-  vec3 amb = amb_c * vColor;
+  // Reflection Model
   vec3 dif = dif_c * lColor * vColor * dif_i * light_i;
   vec3 spc = spc_c * lColor * pow(spc_i, spc_p) * light_i;
-  return amb + dif + spc;
+  return dif + spc;
 }
 
 void main(void) {
@@ -53,10 +52,10 @@ void main(void) {
   vec3 norm = (shading == 1) ? cross(dFdx(pos), dFdy(pos)) : norm;
 
   // phong shading
-  vec3 fragColor = 
-    getReflect(pos, norm, color, light1Pos, light1C) +
-    getReflect(pos, norm, color, light2Pos, light2C) +
-    getReflect(pos, norm, color, light3Pos, light3C);
+  vec3 fragColor = amb_c * color + 
+    getReflect(pos, norm, color, l1pos, light1C) +
+    getReflect(pos, norm, color, l2pos, light2C) +
+    getReflect(pos, norm, color, l3pos, light3C);
   gl_FragColor = vec4(fragColor, 1.0);
 
 }
