@@ -5,9 +5,6 @@ const Options = Vue.createApp({
 		}))
 		this.models.forEach(this.preProcess);
 		this.models.forEach((model, i) => {
-			let ct = model.data.center
-			let sz = model.data.size
-			let scaling = (25 / Math.max(sz.x, sz.y, sz.z)).toFixed(1)
 			this.objects.push({
 				model: model,
 				shading: {
@@ -19,12 +16,8 @@ const Options = Vue.createApp({
 					spc_p_log: 4.0,
 				},
 				transform: {
-					scale: [scaling, scaling, scaling],
-					pos: [
-						(-ct.x * scaling + 30 * i).toFixed(0),
-						(-ct.y * scaling).toFixed(0),
-						(-ct.z * scaling).toFixed(0)
-					],
+					scale: [1, 1, 1],
+					pos: [30 * i, 0, 0],
 					angle: [0, 0, 0],
 				}
 			})
