@@ -42,6 +42,7 @@ const Options = Vue.createApp({
 			dif_c:  0.8,
 			spc_c:  0.4,
 			spc_p: 16.0,
+			spc_p_log: 4.0,
 	
 			// Light source
 			lightPos: [30, 30, -30],
@@ -87,6 +88,11 @@ const Options = Vue.createApp({
 				z: max.z - min.z
 			}
 			model.angle = 180
+		},
+	},
+	watch: {
+		'opt.spc_p_log'(v) {
+			this.opt.spc_p = Math.pow(2, v).toFixed(2)
 		},
 	},
 }).mount('#options')

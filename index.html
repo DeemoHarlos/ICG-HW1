@@ -29,33 +29,41 @@
           </option>
         </select>
       </div>
-      <div class="col-2 d-flex flex-row flex-wrap">
+      <div class="col-2 flex-wrap">
         <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Ambient</label>
         <input name="ambient" class="flex-fill form-text m-0"
           type="text" v-model="opt.amb_c"
-          style="min-width: 0; width: 0;"
         />
+        <input type="range" class="form-range" v-model="opt.amb_c"
+          min="0" max="1" step="0.01"
+        >
       </div>
-      <div class="col-2 d-flex flex-row flex-wrap">
+      <div class="col-2 flex-wrap">
         <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Diffuse</label>
         <input name="diffuse" class="flex-fill form-text m-0"
           type="text" v-model="opt.dif_c"
-          style="min-width: 0; width: 0;"
         />
+        <input type="range" class="form-range" v-model="opt.dif_c"
+          min="0" max="1" step="0.01"
+        >
       </div>
-      <div class="col-2 d-flex flex-row flex-wrap">
+      <div class="col-2 flex-wrap">
         <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
         <input name="specular" class="flex-fill form-text m-0"
           type="text" v-model="opt.spc_c"
-          style="min-width: 0; width: 0;"
         />
+        <input type="range" class="form-range" v-model="opt.spc_c"
+          min="0" max="1" step="0.01"
+        >
       </div>
-      <div class="col-2 d-flex flex-row flex-wrap">
-        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular</label>
+      <div class="col-2 flex-wrap">
+        <label for="ambient" class="form-label m-0 pe-2 align-right w-100">Specular Power</label>
         <input name="specularPower" class="flex-fill form-text m-0"
           type="text" v-model="opt.spc_p"
-          style="min-width: 0; width: 0;"
         />
+        <input type="range" class="form-range" v-model="opt.spc_p_log"
+          min="-3" max="10" step="0.1"
+        >
       </div>
     </div>
     <div class="row my-4">
@@ -63,24 +71,34 @@
       <div class="col-6">
         <div class="h6">Position</div>
         <div class="d-flex flex-row">
-          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col d-flex flex-row px-2 align-items-center">
-            <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-            <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
-              type="text" v-model="opt.lightPos[i]"
-              style="min-width: 0; width: 0;"
-            />
+          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`lightPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`lightPos-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="opt.lightPos[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="opt.lightPos[i]"
+              min="-50" max="50" step="1"
+            >
           </div>
         </div>
       </div>
       <div class="col-6">
         <div class="h6">Color</div>
-        <div class="d-flex flex-row">
-          <div v-for="(e, i) in ['R', 'G', 'B']" class="col d-flex flex-row px-2 align-items-center">
-            <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
-            <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
-              type="text" v-model="opt.lightC[i]"
-              style="min-width: 0; width: 0;"
-            />
+        <div class="d-flex flex-row flex-wrap">
+          <div v-for="(e, i) in ['R', 'G', 'B']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`lightC-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`lightC-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="opt.lightC[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="opt.lightC[i]"
+              min="0" max="1" step="0.01"
+            >
           </div>
         </div>
       </div>
