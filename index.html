@@ -103,6 +103,43 @@
         </div>
       </div>
     </div>
+    <div class="row my-4">
+      <div class="h4">Camera</div>
+      <div class="col-6">
+        <div class="h6">Position</div>
+        <div class="d-flex flex-row">
+          <div v-for="(e, i) in ['X', 'Y', 'Z']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`camPos-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`camPos-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="opt.camPos[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="opt.camPos[i]"
+              min="-50" max="50" step="1"
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="h6">Rotation</div>
+        <div class="d-flex flex-row flex-wrap">
+          <div v-for="(e, i) in ['α', 'β', 'γ']" class="col px-2 align-items-center">
+            <div class="d-flex flex-row">
+              <label :for="`camAngle-${e}`" class="form-label m-0 pe-2 align-right w-auto">{{ e }}</label>
+              <input :name="`camAngle-${e}`" class="flex-fill form-text m-0 me-3"
+                type="text" v-model="opt.camAngle[i]"
+                style="min-width: 0; width: 0;"
+              />
+            </div>
+            <input type="range" class="form-range pe-3" v-model="opt.camAngle[i]"
+              min="-180" max="180" step="1"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <script type="text/javascript" src="index.js"></script>
 </body>

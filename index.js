@@ -47,6 +47,10 @@ const Options = Vue.createApp({
 			// Light source
 			lightPos: [30, 30, -30],
 			lightC: [1.0, .9, .65],
+
+			// camera
+			camPos: [0, 25, 40],
+			camAngle: [0, -30, 0],
 		},
 	}},
 	methods: {
